@@ -18,7 +18,7 @@ static const TickType_t xPeriod = 1000 / portTICK_PERIOD_MS;
 
 // FTM burst 설정
 
-`frm_count` : burst size (4의 제곱수, 8 허용)
+`frm_count` : burst size (4, 8의 배수)
 
 `burst_period` : burst 주기 (100 ms 단위), 0 으로 설정 시 자동
 
