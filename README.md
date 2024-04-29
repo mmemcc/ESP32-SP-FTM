@@ -17,6 +17,10 @@ epoch = 40, Distance = 1.50 m
 
 epoch | 기기 부팅 후 시간 (µsec) | Dialog token | RTT (psec) | T1 (psec) | T2 (psec) | T3 (psec) | T3 (psec) | RTTI (dBm) | 온도(섭씨)  
 
+epoch = , Distance = m 부분 삭제 원할 시 코드에서 다음 부분 주석처리
+```c
+printf("epoch = %d, Distance = %" PRId32 ".%02" PRId32 " m\n", logtimer, s_dist_est / 100, s_dist_est % 100);
+```
 
 **`ftm_sp/main/ftm_main.c`**
 
