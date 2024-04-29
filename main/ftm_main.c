@@ -18,6 +18,7 @@
 #include "sdkconfig.h"
 #include <sys/time.h>
 #include <time.h>
+#include "driver/temperature_sensor.h"
 
 wifi_ftm_initiator_cfg_t ftmi_cfg = {
     .frm_count = 24,   // RTT burst size (8, 4의 제곱수)
@@ -25,7 +26,7 @@ wifi_ftm_initiator_cfg_t ftmi_cfg = {
 };
 
 // AP SSID
-const char *SSID = "ESP32_AP_40";
+const char *SSID = "ESP32_AP_20";
 
 // ftm 주기 (1000 / portTICK_PERIOD_MS = 1초)
 static const TickType_t xPeriod = 1000 / portTICK_PERIOD_MS;
@@ -45,6 +46,10 @@ wifi_ap_record_t *g_ap_list_buffer;
 
 struct timeval tv_now;
 TickType_t xLastWakeTime;
+
+temperature_sensor_handle_t temp_sensor = NULL;
+temperature_sensor_config_t temp_sensor_config = TEMPERATURE_SENSOR_CONFIG_DEFAULT(10, 50);
+float tsens_out;
 
 wifi_ap_record_t *find_ftm_responder_ap()
 {
@@ -95,6 +100,13 @@ static void event_handler(void *arg, esp_event_base_t event_base,
 
 static void ftm_process_report(int logtimer)
 {
+
+    // Get converted sensor data
+    
+    
+
+    printf("epoch = %d, Distance = %" PRId32 ".%02" PRId32 " m\n", logtimer, s_dist_est / 100, s_dist_est % 100);
+
     int i;
 
     if (s_ftm_report_num_entries == 0)
@@ -102,12 +114,15 @@ static void ftm_process_report(int logtimer)
 
     for (i = 0; i < s_ftm_report_num_entries; i++)
     {
+        // 온도 센서 데이터
+        ESP_ERROR_CHECK(temperature_sensor_get_celsius(temp_sensor, &tsens_out));
+        
         // Timestamp (기기 부팅 후 시간)
         gettimeofday(&tv_now, NULL);
         int64_t time_us = (int64_t)tv_now.tv_sec * 1000000L + (int64_t)tv_now.tv_usec; // µs
 
-        printf("%d,%lld,%6d,%7" PRIi32 ",%14llu,%14llu,%14llu,%14llu,%6d\n",
-               logtimer, time_us, s_ftm_report[i].dlog_token, s_ftm_report[i].rtt, s_ftm_report[i].t1, s_ftm_report[i].t2, s_ftm_report[i].t3, s_ftm_report[i].t4, s_ftm_report[i].rssi);
+        printf("%d,%lld,%6d,%7" PRIi32 ",%14llu,%14llu,%14llu,%14llu,%6d,%.02f\n",
+               logtimer, time_us, s_ftm_report[i].dlog_token, s_ftm_report[i].rtt, s_ftm_report[i].t1, s_ftm_report[i].t2, s_ftm_report[i].t3, s_ftm_report[i].t4, s_ftm_report[i].rssi, tsens_out);
     }
 }
 
@@ -137,6 +152,9 @@ void initialize_wifi(void)
 
 void app_main(void)
 {
+
+    ESP_ERROR_CHECK(temperature_sensor_install(&temp_sensor_config, &temp_sensor));
+    ESP_ERROR_CHECK(temperature_sensor_enable(temp_sensor));
 
     int logtimer = 0;
 

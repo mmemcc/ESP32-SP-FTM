@@ -1,7 +1,7 @@
 {
     "version":            "1",
     "project_name":       "ftm_sp",
-    "project_version":    "1",
+    "project_version":    "aad3627-dirty",
     "project_path":       "C:/Users/user/workspace/esp32/ftm_sp",
     "idf_path":           "C:/Espressif/frameworks/esp-idf-v5.1.2",
     "build_dir":          "C:/Users/user/workspace/esp32/ftm_sp/build",
